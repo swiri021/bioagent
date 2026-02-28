@@ -18,12 +18,70 @@ Read `bioagent.yaml` for all environment settings before doing anything.
 2. If not, use `nfcore_parser.skill.md` to read the nf-core pipeline code and generate one
 3. Review the pipeline SKILL.md to understand steps, dependencies, containers, resources
 
-### Phase 3 — Plan
+### Phase 3 — Plan (MANDATORY — never skip)
+ALWAYS show the full execution plan and get explicit user approval before running anything.
+
 1. Calculate total jobs: samples × steps
 2. Identify parallelizable steps (no dependencies between samples)
 3. Identify sequential steps (dependencies between steps)
 4. Estimate cost and time if possible
-5. Present plan to user for confirmation
+5. Present plan in this format:
+
+```
+══════════════════════════════════════════
+🧬 BioAgent Execution Plan
+══════════════════════════════════════════
+
+Pipeline:  rnaseq (from nf-core/rnaseq)
+Executor:  GCP Batch (us-central1)
+Samples:   10 paired-end FASTQ
+Input:     gs://my-bucket/fastq/
+Output:    gs://my-bucket/output/2026-02-27_rnaseq_001/
+
+──────────────────────────────────────────
+Step 1: fastqc
+  Image:     biocontainers/fastqc:0.12.1
+  Jobs:      10 (parallel)
+  Resources: 4 CPU, 8GB per job
+  
+Step 2: trimgalore  
+  Image:     biocontainers/trim-galore:0.6.10
+  Jobs:      10 (parallel)
+  Resources: 4 CPU, 8GB per job
+  Depends:   Step 1
+
+Step 3: star_align
+  Image:     biocontainers/star:2.7.11b
+  Jobs:      10 (parallel)
+  Resources: 8 CPU, 32GB per job
+  Depends:   Step 2
+
+Step 4: salmon_quant
+  Image:     biocontainers/salmon:1.10.3
+  Jobs:      10 (parallel)
+  Resources: 8 CPU, 16GB per job
+  Depends:   Step 2
+
+Step 5: multiqc
+  Image:     biocontainers/multiqc:1.21
+  Jobs:      1
+  Resources: 2 CPU, 4GB
+  Depends:   Steps 3, 4
+
+──────────────────────────────────────────
+Total:     41 jobs
+Est. Cost: ~$12.50 (GCP Batch)
+Est. Time: ~2-3 hours
+══════════════════════════════════════════
+
+Proceed? (yes / no / modify)
+```
+
+6. WAIT for user response:
+   - "yes" → proceed to Phase 4
+   - "no" → cancel, save plan to run JSON with status "cancelled"
+   - "modify" or any change request → rebuild plan and show again
+   - NEVER proceed without explicit "yes" or equivalent confirmation
 
 ### Phase 4 — Execute
 1. Load the appropriate executor SKILL (gcp_batch / aws_batch / local)
