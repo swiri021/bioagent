@@ -1,0 +1,52 @@
+# BioAgent Configuration
+# Copy this file to bioagent.yaml and fill in your values
+
+# ── LLM ──────────────────────────────────────
+llm:
+  provider: anthropic              # anthropic | openai
+  model: claude-sonnet-4-20250514
+  api_key: ${ANTHROPIC_API_KEY}    # or set as environment variable
+
+# ── Default Executor ─────────────────────────
+executor:
+  default: local                   # local | gcp_batch | aws_batch
+
+# ── GCP Configuration ────────────────────────
+gcp:
+  project: my-gcp-project
+  region: us-central1
+  bucket: gs://my-bioagent-bucket
+  service_account: bioagent@my-gcp-project.iam.gserviceaccount.com
+
+# ── AWS Configuration ────────────────────────
+aws:
+  region: us-east-1
+  bucket: s3://my-bioagent-bucket
+  batch_queue: bioagent-queue
+  # compute_environment must be pre-created
+
+# ── Local Configuration ──────────────────────
+local:
+  max_cpus: 32
+  max_memory: 128GB
+  work_dir: /data/bioagent/work
+  output_dir: /data/bioagent/output
+
+# ── Storage ──────────────────────────────────
+# Where intermediate and final results are stored
+# For cloud executors, this should be a cloud path
+# For local executor, this uses local.work_dir and local.output_dir
+storage:
+  work_dir: /work
+  output_dir: /output
+
+# ── Reference Data ───────────────────────────
+# Pre-downloaded reference genomes, indices, etc.
+references:
+  base_path: /data/references       # local path or cloud URI
+  # Common references (add as needed):
+  # grch38:
+  #   fasta: /data/references/GRCh38/genome.fa
+  #   gtf: /data/references/GRCh38/genes.gtf
+  #   star_index: /data/references/GRCh38/star_index/
+  #   salmon_index: /data/references/GRCh38/salmon_index/
