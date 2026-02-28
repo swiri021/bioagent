@@ -4,6 +4,8 @@
 
 Replace Nextflow/Snakemake with natural language. BioAgent reads nf-core pipeline logic and executes it on any infrastructure — no pipeline code to write or maintain.
 
+**NOT FULLY COMPLETED YET**
+
 ## How It Works
 
 ```
